@@ -99,21 +99,30 @@ const commonStyles = `
 
   .button {
     display: inline-block;
-    background-color: var(--color-primary);
-    color: var(--color-background) !important;
+    background-color: #000000;
+    color: #ffffff !important;
     text-decoration: none;
-    padding: 16px 32px;
+    padding: 16px 48px;
     border-radius: 8px;
     font-weight: 600;
     font-family: var(--font-heading);
     font-size: 16px;
-    transition: transform 0.15s ease-in-out;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease-in-out;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid #000000;
   }
 
   .button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    background-color: #000000;
+    color: #ffffff !important;
+  }
+
+  .button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
   .verification-link {
@@ -207,10 +216,16 @@ const sendVerificationEmail = async (user, verificationUrl) => {
                 
                 <p>Thank you for choosing Zonnecta. To get started, please verify your email address by clicking the button below:</p>
                 
-                <div class="button-container">
-                  <a href="${fullVerificationUrl}" class="button">
-                    Verify Email Address
-                  </a>
+                <div class="button-container" style="margin: 40px 0;">
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                    <tr>
+                      <td>
+                        <a href="${fullVerificationUrl}" class="button" style="color: #ffffff !important; background-color: #000000; display: inline-block; text-decoration: none;">
+                          Verify Email Address
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
                 
                 <p>This link will expire in 24 hours. If you need a new verification link, you can request one from the app.</p>
