@@ -5,6 +5,9 @@ const { validationResult } = require('express-validator');
 const { generateVerificationToken, sendVerificationEmail, sendWelcomeEmail } = require('../utils/emailUtils');
 require('dotenv').config();
 
+// Ensure backend URL is available
+const BACKEND_URL = process.env.BACKEND_URL || 'https://react-native-app-backend-ozmx.onrender.com';
+
 // Function to generate JWT token
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -48,8 +51,8 @@ exports.registerUser = async (req, res) => {
 
         await user.save();
 
-        // Generate verification URL using backend URL
-        const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${verificationToken}`;
+        // Generate verification URL
+        const verificationUrl = `/api/auth/verify-email?token=${verificationToken}`;
         
         // Send verification email
         await sendVerificationEmail(user, verificationUrl);
@@ -168,7 +171,7 @@ exports.verifyEmail = async (req, res) => {
                     function openApp() {
                         if (isMobile()) {
                             // Try to open the app using custom scheme
-                            window.location.href = '${process.env.APP_SCHEME}://login';
+                            window.location.href = 'zonnecta://login';
                             
                             // If app is not installed, redirect to store after a delay
                             setTimeout(() => {
@@ -192,9 +195,7 @@ exports.verifyEmail = async (req, res) => {
                     <p>Your email has been verified. You can now log in to your account.</p>
                     <div class="button-container">
                         <a href="#" onclick="openApp(); return false;" class="button">Open App</a>
-                        ${!isMobile() ? `
-                            <p class="note">If you're on desktop, please open the app on your mobile device to continue.</p>
-                        ` : ''}
+                        <p class="note">If you're on desktop, please open the app on your mobile device to continue.</p>
                     </div>
                 </div>
             </body>
@@ -274,8 +275,8 @@ exports.resendVerificationEmail = async (req, res) => {
         user.emailVerificationExpires = verificationExpires;
         await user.save();
 
-        // Generate verification URL using backend URL
-        const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${verificationToken}`;
+        // Generate verification URL
+        const verificationUrl = `/api/auth/verify-email?token=${verificationToken}`;
         
         // Send verification email
         await sendVerificationEmail(user, verificationUrl);

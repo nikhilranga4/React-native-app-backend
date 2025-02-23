@@ -1,5 +1,9 @@
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+require('dotenv').config();
+
+// Ensure backend URL is available
+const BACKEND_URL = process.env.BACKEND_URL || 'https://react-native-app-backend-ozmx.onrender.com';
 
 // Create reusable transporter object using Gmail SMTP
 const transporter = nodemailer.createTransport({
@@ -83,10 +87,24 @@ const commonStyles = `
     font-size: 14px;
     font-family: var(--font-primary);
   }
+  .verification-link {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 8px;
+    word-break: break-all;
+    font-family: monospace;
+    margin: 20px 0;
+    border: 1px solid #e0e0e0;
+  }
 `;
 
 const sendVerificationEmail = async (user, verificationUrl) => {
   try {
+    // Ensure the verification URL is properly formed
+    const fullVerificationUrl = verificationUrl.startsWith('http') 
+      ? verificationUrl 
+      : `${BACKEND_URL}${verificationUrl.startsWith('/') ? '' : '/'}${verificationUrl}`;
+
     const info = await transporter.sendMail({
       from: `"Zonnecta" <${process.env.GMAIL_USER}>`,
       to: user.email,
@@ -111,14 +129,14 @@ const sendVerificationEmail = async (user, verificationUrl) => {
               <p>Thank you for signing up! We're excited to have you on board. Please verify your email address to get started.</p>
               
               <div style="text-align: center;">
-                <a href="${verificationUrl}" class="button">
+                <a href="${fullVerificationUrl}" class="button">
                   Verify Email Address
                 </a>
               </div>
               
               <p>Or copy and paste this URL into your browser:</p>
-              <div style="background: #f5f5f5; padding: 12px; border-radius: 4px; word-break: break-all;">
-                ${verificationUrl}
+              <div class="verification-link">
+                ${fullVerificationUrl}
               </div>
               
               <p style="color: #666; font-size: 14px;">This link will expire in 24 hours for security reasons.</p>
@@ -179,7 +197,7 @@ const sendWelcomeEmail = async (user) => {
               <p>Ready to get started?</p>
               
               <div style="text-align: center;">
-                <a href="${process.env.APP_URL}" class="button">
+                <a href="${process.env.APP_URL || 'zonnecta://app'}" class="button">
                   Open Zonnecta App
                 </a>
               </div>
