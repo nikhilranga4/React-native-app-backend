@@ -1,5 +1,11 @@
 const express = require('express');
-const { registerUser, loginUser, oauthLogin } = require('../controllers/authController');
+const {
+    registerUser,
+    loginUser,
+    oauthLogin,
+    verifyEmail,
+    resendVerificationEmail
+} = require('../controllers/authController');
 const { check } = require('express-validator');
 
 const router = express.Router();
@@ -23,6 +29,18 @@ router.post(
         check('password', 'Password is required').exists(),
     ],
     loginUser
+);
+
+// Email Verification
+router.get('/verify-email', verifyEmail);
+
+// Resend Verification Email
+router.post(
+    '/resend-verification',
+    [
+        check('email', 'Please include a valid email').isEmail(),
+    ],
+    resendVerificationEmail
 );
 
 // OAuth Login (Google, GitHub)
