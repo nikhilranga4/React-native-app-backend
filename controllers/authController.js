@@ -48,8 +48,8 @@ exports.registerUser = async (req, res) => {
 
         await user.save();
 
-        // Generate verification URL
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+        // Generate verification URL using backend URL
+        const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${verificationToken}`;
         
         // Send verification email
         await sendVerificationEmail(user, verificationUrl);
@@ -97,7 +97,7 @@ exports.verifyEmail = async (req, res) => {
         // Send welcome email
         await sendWelcomeEmail(user);
 
-        // Return success response with HTML
+        // Return success response with HTML and deep link to app
         res.send(`
             <!DOCTYPE html>
             <html>
@@ -144,18 +144,58 @@ exports.verifyEmail = async (req, res) => {
                         text-decoration: none;
                         border-radius: 8px;
                         font-weight: 600;
+                        margin: 8px;
                     }
                     .button:hover {
                         opacity: 0.9;
                     }
+                    .button-container {
+                        margin-top: 20px;
+                    }
+                    .note {
+                        font-size: 14px;
+                        color: #666;
+                        margin-top: 20px;
+                    }
                 </style>
+                <script>
+                    // Function to detect mobile device
+                    function isMobile() {
+                        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    }
+
+                    // Function to open app or store
+                    function openApp() {
+                        if (isMobile()) {
+                            // Try to open the app using custom scheme
+                            window.location.href = '${process.env.APP_SCHEME}://login';
+                            
+                            // If app is not installed, redirect to store after a delay
+                            setTimeout(() => {
+                                if (/(iPhone|iPod|iPad)/i.test(navigator.userAgent)) {
+                                    window.location.href = 'https://apps.apple.com/app/your-app-id';
+                                } else {
+                                    window.location.href = 'https://play.google.com/store/apps/details?id=your.app.id';
+                                }
+                            }, 2500);
+                        } else {
+                            // On desktop, show a message
+                            alert('Please open this link on your mobile device to access the app.');
+                        }
+                    }
+                </script>
             </head>
             <body>
                 <div class="container">
                     <div class="success-icon">✓</div>
                     <h1>Email Verified Successfully!</h1>
                     <p>Your email has been verified. You can now log in to your account.</p>
-                    <a href="${process.env.APP_URL}" class="button">Open App</a>
+                    <div class="button-container">
+                        <a href="#" onclick="openApp(); return false;" class="button">Open App</a>
+                        ${!isMobile() ? `
+                            <p class="note">If you're on desktop, please open the app on your mobile device to continue.</p>
+                        ` : ''}
+                    </div>
                 </div>
             </body>
             </html>
@@ -234,8 +274,8 @@ exports.resendVerificationEmail = async (req, res) => {
         user.emailVerificationExpires = verificationExpires;
         await user.save();
 
-        // Generate verification URL
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+        // Generate verification URL using backend URL
+        const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${verificationToken}`;
         
         // Send verification email
         await sendVerificationEmail(user, verificationUrl);
